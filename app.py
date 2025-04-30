@@ -14,7 +14,7 @@ if uploaded_file is None:
 # Load CSV from uploaded file
 your_df = pd.read_csv(uploaded_file)
 
-your_df = pd.read_csv(file_path)
+#your_df = pd.read_csv(file_path)
 
 # --- Convert 'date' column to datetime and sort ---
 your_df['date'] = pd.to_datetime(your_df['date'])
