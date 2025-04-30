@@ -41,10 +41,17 @@ df_prices = pd.DataFrame({
     "Predictions": predictions
 })
 
-# --- Plot: Actual vs Predictions (No smoothing) ---
+# --- Smoothing based on fold type ---
+if selected_fold == "Rolling":
+    window_size = 5
+    df_prices['Predictions_Smoothed'] = df_prices['Predictions'].rolling(window=window_size).mean()
+elif selected_fold == "Expanding":
+    df_prices['Predictions_Smoothed'] = df_prices['Predictions'].expanding().mean()
+
+# --- Plot: Actual vs Predictions (Smoothed Predictions) ---
 st.subheader("Predictions vs Actual")
 fig_prices, ax_prices = plt.subplots(figsize=(10, 6))
-ax_prices.plot(df_prices['Date'], df_prices['Predictions'], label="Predictions", color='blue')
+ax_prices.plot(df_prices['Date'], df_prices['Predictions_Smoothed'], label="Predictions (Smoothed)", color='blue')
 ax_prices.plot(df_prices['Date'], df_prices['Actual'], label="Actual", color='orange')  # No smoothing on Actual
 ax_prices.set_xlabel('Date')
 ax_prices.set_ylabel('Returns')
@@ -54,11 +61,11 @@ st.pyplot(fig_prices)
 
 # --- R² Score ---
 # Drop NaNs from columns to avoid mismatch
-df_prices = df_prices.dropna(subset=['Actual', 'Predictions'])
+df_prices = df_prices.dropna(subset=['Actual', 'Predictions_Smoothed'])
 
 r2_val = r2_score(
     df_prices['Actual'],
-    df_prices['Predictions']
+    df_prices['Predictions_Smoothed']
 )
 
 st.markdown(f"### R² Score: {r2_val:.4f}")
