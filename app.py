@@ -18,9 +18,7 @@ your_df = pd.read_csv(file_path)
 
 
 # --- Available Prediction Columns ---
-available_columns = ['date',
-    'pred_mlp_32', 'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge'
-]
+available_columns = ['pred_mlp_32', 'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge']
 
 your_df = your_df.groupby('date')[['pred_mlp_32', 'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge']].mean()
 
