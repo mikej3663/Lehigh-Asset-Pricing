@@ -7,22 +7,35 @@ import os
 # Print the current working directory
 print("Current Working Directory:", os.getcwd())
 
-
-
 # --- File Upload ---
 file_path = 'prediction_output.csv'  # Update this path accordingly
 
+try:
+    your_df = pd.read_csv(file_path)
+except FileNotFoundError:
+    st.error(f"Error: The file '{file_path}' was not found in the directory.")
+    st.stop()
 
+# --- Checking function to verify if 'date' column exists ---
+def check_date_column(df):
+    if 'date' not in df.columns:
+        st.error("Error: Your DataFrame must contain a column named 'date'.")
+        print(f"The 'date' column is not found in the DataFrame.")
+        print("Here are the column names in the DataFrame:", df.columns.tolist())
+        st.stop()
+    else:
+        date_index = df.columns.get_loc('date')  # Get the index of the 'date' column
+        st.write(f"The 'date' column is found at index {date_index} in the DataFrame.")
+        print(f"The 'date' column is located at index {date_index} in the DataFrame.")
 
-
-your_df = pd.read_csv(file_path)
-
-your_df = your_df.rename(columns={'date': 'date'})
+# Call the checking function
+check_date_column(your_df)
 
 # --- Available Prediction Columns ---
 available_columns = ['pred_mlp_32', 'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge']
 
-your_df = your_df.groupby('date')[['pred_mlp_32', 'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge']].mean()
+# Group by 'date' and calculate the mean of prediction columns
+your_df = your_df.groupby('date')[available_columns].mean()
 
 # --- Sidebar Selectors ---
 selected_model = st.sidebar.selectbox("Model Type", available_columns)
@@ -30,14 +43,7 @@ fold_types = ["Rolling", "Expanding"]
 selected_fold = st.sidebar.selectbox("Fold Type (CV)", fold_types)
 
 # --- Get Data from your DataFrame ---
-# Assuming your DataFrame has a 'date' column
-
-
-if 'date' not in your_df.columns:
-    st.error("Error: Your DataFrame must contain a column named 'date'.")
-    st.stop()
-
-dates = your_df['date']
+dates = pd.to_datetime(your_df['date'])
 
 # Assuming your actual values are in 'ret' column
 if 'ret' not in your_df.columns:
