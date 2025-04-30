@@ -2,17 +2,10 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-import os
-
-# Print the current working directory
-print("Current Working Directory:", os.getcwd())
-
 
 
 # --- File Upload ---
 file_path = 'prediction_output.csv'  # Update this path accordingly
-
-
 
 
 your_df = pd.read_csv(file_path)
