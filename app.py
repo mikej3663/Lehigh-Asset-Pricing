@@ -17,18 +17,15 @@ else:
     st.error("Please upload the 'prediction_output.csv' file to proceed.")
     st.stop()
 
-# --- Define Model Types and Fold Types ---
-model_types = ["OLS", "Lasso", "Ridge", "RandomForest", "HistGradientBoostingRegressor",
-               "Neural Net 1 Layer", "Neural Net 2 Layers", "Neural Net 3 Layers",
-               "Neural Net 4 Layers", "Neural Net 5 Layers"]
-fold_types = ["Rolling", "Expanding"]
+# --- Available Prediction Columns ---
+available_columns = [
+    'pred_mlp_32', 'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge'
+]
 
 # --- Sidebar Selectors ---
-selected_model = st.sidebar.selectbox("Model Type", model_types)
+selected_model = st.sidebar.selectbox("Model Type", available_columns)
+fold_types = ["Rolling", "Expanding"]
 selected_fold = st.sidebar.selectbox("Fold Type (CV)", fold_types)
-
-# --- Construct the Prediction Column Name ---
-prediction_column = f"pred_{selected_model}"
 
 # --- Get Data from your DataFrame ---
 # Assuming your DataFrame has a 'date' column
@@ -46,6 +43,7 @@ if 'ret' not in your_df.columns:
 actual_returns = your_df['ret'].values
 
 # Get Predictions
+prediction_column = selected_model  # Dynamically set the selected prediction column
 if prediction_column not in your_df.columns:
     st.error(f"Error: The column '{prediction_column}' is not found in your DataFrame.")
     st.stop()
