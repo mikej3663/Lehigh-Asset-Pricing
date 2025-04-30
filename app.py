@@ -4,7 +4,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # --- File Upload ---
-file_path = 'prediction_output.csv'  # Adjust this path if needed
+#file_path = 'prediction_output.csv'  # Adjust this path if needed
+uploaded_file = st.file_uploader("Upload your prediction_output.csv", type=["csv"])
+
+if uploaded_file is None:
+    st.warning("Please upload a CSV file to proceed.")
+    st.stop()
+
+# Load CSV from uploaded file
+your_df = pd.read_csv(uploaded_file)
+
 your_df = pd.read_csv(file_path)
 
 # --- Convert 'date' column to datetime and sort ---
