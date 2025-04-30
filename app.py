@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -30,8 +31,8 @@ if 'date' not in your_df.columns or 'ret' not in your_df.columns:
 
 # --- Prepare DataFrame ---
 dates = your_df['date']
-actual_returns = your_df['ret'].clip(lower=-0.15, upper=0.15)  # Clip actual returns to [-15%, 15%]
-predictions = your_df[selected_model].clip(lower=-0.15, upper=0.15)  # Clip predictions to [-15%, 15%]
+actual_returns = your_df['ret'].clip(lower=-15, upper=15)
+predictions = your_df[selected_model].clip(lower=-15, upper=15)
 
 df_prices = pd.DataFrame({
     "Date": dates,
@@ -39,14 +40,14 @@ df_prices = pd.DataFrame({
     "Predictions": predictions
 })
 
-# --- Plot: Actual vs Predictions (No smoothing, with clipping) ---
-st.subheader("Predictions vs Actual (Clipped at ±15%)")
+# --- Plot: Actual vs Predictions (No smoothing) ---
+st.subheader("Predictions vs Actual")
 fig_prices, ax_prices = plt.subplots(figsize=(10, 6))
 ax_prices.plot(df_prices['Date'], df_prices['Predictions'], label="Predictions", color='blue')
-ax_prices.plot(df_prices['Date'], df_prices['Actual'], label="Actual", color='orange')  # Clipped Actual
+ax_prices.plot(df_prices['Date'], df_prices['Actual'], label="Actual", color='orange')  # No smoothing on Actual
 ax_prices.set_xlabel('Date')
 ax_prices.set_ylabel('Returns')
-ax_prices.set_title('Predictions vs Actual (Clipped at ±15%)')
+ax_prices.set_title('Predictions vs Actual')
 ax_prices.legend()
 st.pyplot(fig_prices)
 
