@@ -2,7 +2,7 @@ numpy
 pandas 
 seaborn
 streamlit
-matplotlib
+matplotlib==3.7.0
 pandas-datareader
 spyder
 pyportfolioopt==1.5.2
