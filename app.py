@@ -7,14 +7,8 @@ from sklearn.metrics import r2_score
 # --- Streamlit File Upload ---
 st.title("Neural Network Dashboard - Asset Pricing")
 
-uploaded_file = st.file_uploader("Upload your prediction_output.csv", type=["csv"])
-
-if uploaded_file is None:
-    st.warning("Please upload a CSV file to proceed.")
-    st.stop()
-
-# Load CSV from uploaded file
-your_df = pd.read_csv(uploaded_file)
+file_path = 'prediction_output.csv'
+your_df = pd.read_csv(file_path)
 
 # --- Convert 'date' column to datetime and sort ---
 your_df['date'] = pd.to_datetime(your_df['date'])
