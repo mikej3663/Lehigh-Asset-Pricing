@@ -1,60 +1,63 @@
-
+import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-import streamlit as st
-
 
 # --- File Upload ---
-file_path = 'prediction_output.csv'  # Update this path accordingly
-
-
+file_path = 'prediction_output.csv'  # Adjust this path if needed
 your_df = pd.read_csv(file_path)
+
+# --- Convert 'date' column to datetime and sort ---
+your_df['date'] = pd.to_datetime(your_df['date'])
+your_df = your_df.sort_values("date")
 
 # --- Available Prediction Columns ---
 available_columns = ['pred_mlp_32', 'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge']
 
-your_df = your_df.groupby('date')[['ret', 'pred_mlp_32', 'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge']].mean().reset_index()
+# --- Group by date using median to reduce distortion ---
+your_df = your_df.groupby('date')[['ret'] + available_columns].median().reset_index()
 
 # --- Sidebar Selectors ---
 selected_model = st.sidebar.selectbox("Model Type", available_columns)
 fold_types = ["Rolling", "Expanding"]
 selected_fold = st.sidebar.selectbox("Fold Type (CV)", fold_types)
 
-# --- Get Data from your DataFrame ---
-# Assuming your DataFrame has a 'date' column
-
-
-if 'date' not in your_df.columns:
-    st.error("Error: Your DataFrame must contain a column named 'date'.")
+# --- Check for required columns ---
+if 'date' not in your_df.columns or 'ret' not in your_df.columns:
+    st.error("Error: Your DataFrame must contain 'date' and 'ret' columns.")
     st.stop()
 
+# --- Prepare plotting data ---
 dates = your_df['date']
-
-# Assuming your actual values are in 'ret' column
-if 'ret' not in your_df.columns:
-    st.error("Error: Your DataFrame must contain a column named 'ret'.")
-    st.stop()
-
 actual_returns = your_df['ret'].values
+predictions = your_df[selected_model].values
 
-# Get Predictions
-prediction_column = selected_model  # Dynamically set the selected prediction column
-if prediction_column not in your_df.columns:
-    st.error(f"Error: The column '{prediction_column}' is not found in your DataFrame.")
-    st.stop()
+df_prices = pd.DataFrame({
+    "Date": dates,
+    "Actual": actual_returns,
+    "Predictions": predictions
+})
 
-predictions = your_df[prediction_column].values
-df_prices = pd.DataFrame({"Date": dates, "Actual": actual_returns, "Predictions": predictions})
+# --- Optional: Clip extreme values before smoothing for readability ---
+df_prices[['Actual', 'Predictions']] = df_prices[['Actual', 'Predictions']].clip(lower=-15, upper=15)
+
+# --- Apply rolling average smoothing ---
+window_size = 5  # You can adjust this for more or less smoothing
+df_prices['Actual_Smoothed'] = df_prices['Actual'].rolling(window=window_size).mean()
+df_prices['Predictions_Smoothed'] = df_prices['Predictions'].rolling(window=window_size).mean()
 
 # --- Dashboard Layout ---
 st.title("Neural Network Dashboard - Asset Pricing")
 
-# Row 1: Predictions vs Actual
+# Show basic stats
+st.write("Prediction Summary Statistics:")
+st.write(df_prices['Predictions'].describe())
+
+# --- Plot: Smoothed Predictions vs Actual ---
 st.subheader("Predictions vs Actual")
 fig_prices, ax_prices = plt.subplots(figsize=(10, 6))
-ax_prices.plot(df_prices['Date'], df_prices['Predictions'], label="Predictions", color='blue')
-ax_prices.plot(df_prices['Date'], df_prices['Actual'], label="Actual", color='orange')
+ax_prices.plot(df_prices['Date'], df_prices['Predictions_Smoothed'], label="Predictions (Smoothed)", color='blue')
+ax_prices.plot(df_prices['Date'], df_prices['Actual_Smoothed'], label="Actual (Smoothed)", color='orange')
 ax_prices.set_xlabel('Date')
 ax_prices.set_ylabel('Returns')
 ax_prices.set_title('Predictions vs Actual')
