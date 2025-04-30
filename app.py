@@ -15,8 +15,7 @@ your_df = your_df.rename(columns={'date': 'date'})
 # --- Available Prediction Columns ---
 available_columns = ['pred_mlp_32', 'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge']
 
-your_df = your_df.groupby('date')[['pred_mlp_32', 'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge']].mean()
-
+your_df = your_df.groupby('date')[['ret', 'pred_mlp_32', 'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge']].mean().reset_index()
 # --- Sidebar Selectors ---
 selected_model = st.sidebar.selectbox("Model Type", available_columns)
 fold_types = ["Rolling", "Expanding"]
