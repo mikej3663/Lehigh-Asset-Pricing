@@ -4,18 +4,27 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # --- File Upload ---
+file_path = 'predictions_output.csv'  # Update this path accordingly
+
+# Use Streamlit's file uploader
 uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
 
 if uploaded_file is not None:
-    # Read the CSV file
+    # Read the uploaded CSV file
     try:
         your_df = pd.read_csv(uploaded_file)
     except Exception as e:
         st.error(f"Error loading file: {e}")
         st.stop()
 else:
-    st.error("Please upload the 'prediction_output.csv' file to proceed.")
-    st.stop()
+    # Read the file directly from the repository if not uploaded
+    try:
+        your_df = pd.read_csv(file_path)
+        st.write("File loaded from repository")
+    except Exception as e:
+        st.error(f"Error loading file from repository: {e}")
+        st.stop()
+
 
 # --- Available Prediction Columns ---
 available_columns = [
