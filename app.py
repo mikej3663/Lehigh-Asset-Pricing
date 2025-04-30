@@ -3,11 +3,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-# --- Load Your DataFrame ---
-try:
-    your_df = pd.read_csv('prediction_output.csv')  # Updated path to the uploaded file
-except FileNotFoundError:
-    st.error("Error: 'prediction_output.csv' not found. Please make sure your data file is in the correct path.")
+# --- File Upload ---
+uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
+
+if uploaded_file is not None:
+    # Read the CSV file
+    try:
+        your_df = pd.read_csv(uploaded_file)
+    except Exception as e:
+        st.error(f"Error loading file: {e}")
+        st.stop()
+else:
+    st.error("Please upload the 'prediction_output.csv' file to proceed.")
     st.stop()
 
 # --- Define Model Types and Fold Types ---
