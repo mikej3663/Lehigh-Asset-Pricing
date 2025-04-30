@@ -1,7 +1,7 @@
-
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 # --- Load Your DataFrame ---
@@ -75,18 +75,32 @@ st.title("Neural Network Dashboard - Asset Pricing")
 
 # Row 1: Predictions vs Actual
 st.subheader("Predictions vs Actual")
-fig_prices = px.line(df_prices, x="Date", y=["Predictions", "Actual"],
-                     labels={"value": "Price", "Date": "Date"})
-st.plotly_chart(fig_prices, use_container_width=True)
+fig_prices, ax_prices = plt.subplots(figsize=(10, 6))
+ax_prices.plot(df_prices['Date'], df_prices['Predictions'], label="Predictions", color='blue')
+ax_prices.plot(df_prices['Date'], df_prices['Actual'], label="Actual", color='orange')
+ax_prices.set_xlabel('Date')
+ax_prices.set_ylabel('Price')
+ax_prices.set_title('Predictions vs Actual')
+ax_prices.legend()
+st.pyplot(fig_prices)
 
 # Row 2: Predictions vs Actual vs S&P 500
 st.subheader("Predictions vs Actual vs S&P 500")
 df_comparison = df_prices.merge(df_sp500, on="Date", how='left')
-fig_comparison = px.line(df_comparison, x="Date",
-                         y=["Predictions", "Actual", "S&P 500 Actual", "S&P 500 Predictions"],
-                         labels={"value": "Value", "Date": "Date"})
-fig_comparison.update_layout(legend_title_text="Legend")
-st.plotly_chart(fig_comparison, use_container_width=True)
+
+fig_comparison, ax_comparison = plt.subplots(figsize=(10, 6))
+ax_comparison.plot(df_comparison['Date'], df_comparison['Predictions'], label="Predictions", color='blue')
+ax_comparison.plot(df_comparison['Date'], df_comparison['Actual'], label="Actual", color='orange')
+if 'S&P 500 Actual' in df_comparison.columns:
+    ax_comparison.plot(df_comparison['Date'], df_comparison['S&P 500 Actual'], label="S&P 500 Actual", color='green')
+if 'S&P 500 Predictions' in df_comparison.columns:
+    ax_comparison.plot(df_comparison['Date'], df_comparison['S&P 500 Predictions'], label="S&P 500 Predictions", color='red')
+
+ax_comparison.set_xlabel('Date')
+ax_comparison.set_ylabel('Value')
+ax_comparison.set_title('Predictions vs Actual vs S&P 500')
+ax_comparison.legend()
+st.pyplot(fig_comparison)
 
 # Row 3: Metric Table
 st.subheader("Metrics")
