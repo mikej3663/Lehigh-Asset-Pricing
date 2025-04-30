@@ -61,9 +61,11 @@ st.pyplot(fig_prices)
 
 # --- R² Score ---
 # Drop NaNs from smoothed columns (due to rolling/expanding window)
+df_prices = df_prices.dropna(subset=['Actual', 'Predictions_Smoothed'])
+
 r2_val = r2_score(
-    df_prices['Actual'].dropna(),
-    df_prices['Predictions_Smoothed'].dropna()
+    df_prices['Actual'],
+    df_prices['Predictions_Smoothed']
 )
 
 st.markdown(f"### R² Score: {r2_val:.4f}")
