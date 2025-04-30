@@ -5,7 +5,7 @@ import numpy as np
 
 # --- Load Your DataFrame ---
 try:
-    your_df = pd.read_csv('/mnt/data/prediction_output.csv')  # Updated path to the uploaded file
+    your_df = pd.read_csv('prediction_output.csv')  # Updated path to the uploaded file
 except FileNotFoundError:
     st.error("Error: 'prediction_output.csv' not found. Please make sure your data file is in the correct path.")
     st.stop()
