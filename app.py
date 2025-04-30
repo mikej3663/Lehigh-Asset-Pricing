@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # --- File Upload ---
-file_path = 'predictions_output.csv'  # Update this path accordingly
+file_path = 'Dasgboard_Temp/predictions_output.csv'  # Update this path accordingly
 
 # Use Streamlit's file uploader
 uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
