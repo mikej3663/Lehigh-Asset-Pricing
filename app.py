@@ -22,8 +22,6 @@ your_df = your_df.groupby('date')[['ret'] + available_columns].median().reset_in
 
 # --- Sidebar Selectors ---
 selected_model = st.sidebar.selectbox("Model Type", available_columns)
-fold_types = ["Rolling", "Expanding"]
-selected_fold = st.sidebar.selectbox("Fold Type (CV)", fold_types)
 
 # --- Check for required columns ---
 if 'date' not in your_df.columns or 'ret' not in your_df.columns:
@@ -41,17 +39,10 @@ df_prices = pd.DataFrame({
     "Predictions": predictions
 })
 
-# --- Smoothing based on fold type ---
-if selected_fold == "Rolling":
-    window_size = 5
-    df_prices['Predictions_Smoothed'] = df_prices['Predictions'].rolling(window=window_size).mean()
-elif selected_fold == "Expanding":
-    df_prices['Predictions_Smoothed'] = df_prices['Predictions'].expanding().mean()
-
-# --- Plot: Actual vs Predictions (Smoothed Predictions) ---
+# --- Plot: Actual vs Predictions (No smoothing) ---
 st.subheader("Predictions vs Actual")
 fig_prices, ax_prices = plt.subplots(figsize=(10, 6))
-ax_prices.plot(df_prices['Date'], df_prices['Predictions_Smoothed'], label="Predictions (Smoothed)", color='blue')
+ax_prices.plot(df_prices['Date'], df_prices['Predictions'], label="Predictions", color='blue')
 ax_prices.plot(df_prices['Date'], df_prices['Actual'], label="Actual", color='orange')  # No smoothing on Actual
 ax_prices.set_xlabel('Date')
 ax_prices.set_ylabel('Returns')
@@ -61,11 +52,11 @@ st.pyplot(fig_prices)
 
 # --- R² Score ---
 # Drop NaNs from columns to avoid mismatch
-df_prices = df_prices.dropna(subset=['Actual', 'Predictions_Smoothed'])
+df_prices = df_prices.dropna(subset=['Actual', 'Predictions'])
 
 r2_val = r2_score(
     df_prices['Actual'],
-    df_prices['Predictions_Smoothed']
+    df_prices['Predictions']
 )
 
 st.markdown(f"### R² Score: {r2_val:.4f}")
