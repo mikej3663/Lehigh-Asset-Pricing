@@ -7,3 +7,4 @@ pandas-datareader
 pyportfolioopt==1.5.2
 yfinance
 plotly
+
