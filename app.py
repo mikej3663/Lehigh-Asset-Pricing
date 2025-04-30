@@ -9,7 +9,7 @@ print("Current Working Directory:", os.getcwd())
 
 
 # --- File Upload ---
-file_path = 'mikej3663/Dashboard_Temp/predictions_output.csv'  # Update this path accordingly
+file_path = 'prediction_output.csv'  # Update this path accordingly
 
 # Use Streamlit's file uploader
 uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
