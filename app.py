@@ -2,6 +2,11 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import os
+
+# Print the current working directory
+print("Current Working Directory:", os.getcwd())
+
 
 # --- File Upload ---
 file_path = 'mikej3663/Dashboard_Temp/predictions_output.csv'  # Update this path accordingly
