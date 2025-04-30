@@ -41,19 +41,18 @@ cleaned_actual_returns = remove_close_outliers(your_df['ret'])
 # --- Apply outlier removal to the selected prediction model ---
 cleaned_predictions = remove_close_outliers(your_df[selected_model])
 
-# --- Prepare DataFrame ---
-dates = your_df['date'][cleaned_actual_returns.index.intersection(cleaned_predictions.index)]
-actual_returns_plot = cleaned_actual_returns[cleaned_actual_returns.index.isin(dates.index)].clip(lower=-15, upper=15)
-predictions_plot = cleaned_predictions[cleaned_predictions.index.isin(dates.index)].clip(lower=-15, upper=15)
-
+# --- Prepare DataFrame for Cleaned Data ---
+dates_cleaned = your_df['date'][cleaned_actual_returns.index.intersection(cleaned_predictions.index)]
+actual_returns_plot_cleaned = cleaned_actual_returns[cleaned_actual_returns.index.isin(dates_cleaned.index)].clip(lower=-15, upper=15)
+predictions_plot_cleaned = cleaned_predictions[cleaned_predictions.index.isin(dates_cleaned.index)].clip(lower=-15, upper=15)
 
 df_prices_cleaned = pd.DataFrame({
-    "Date": dates,
-    "Actual": actual_returns_plot,
-    "Predictions": predictions_plot
+    "Date": dates_cleaned,
+    "Actual": actual_returns_plot_cleaned,
+    "Predictions": predictions_plot_cleaned
 })
 
-# --- Plot: Actual vs Predictions (Outliers Removed) ---
+# --- Plot: Actual vs Predictions (Outliers Removed within +/- 10%) ---
 st.subheader("Predictions vs Actual (Outliers Removed within +/- 10%)")
 fig_prices_cleaned, ax_prices_cleaned = plt.subplots(figsize=(10, 6))
 ax_prices_cleaned.plot(df_prices_cleaned['Date'], df_prices_cleaned['Predictions'], label="Predictions", color='blue')
@@ -68,8 +67,8 @@ st.pyplot(fig_prices_cleaned)
 df_prices_cleaned = df_prices_cleaned.dropna(subset=['Actual', 'Predictions'])
 
 r2_val_cleaned = r2_score(
-    df_prices_cleaned['Actual'],
-    df_prices_cleaned['Predictions']
+    df_prices_cleaned['Actual'].values.reshape(-1, 1),
+    df_prices_cleaned['Predictions'].values.reshape(-1, 1)
 )
 
 st.markdown(f"### R² Score (Outliers Removed): {r2_val_cleaned:.4f}")
@@ -78,9 +77,38 @@ st.markdown(f"### R² Score (Outliers Removed): {r2_val_cleaned:.4f}")
 st.markdown("### Prediction Summary Statistics (Outliers Removed)")
 st.write(df_prices_cleaned['Predictions'].describe())
 
-# --- Original Plots and Stats for Comparison ---
+# --- Prepare DataFrame for Original Data (for consistent plotting) ---
+dates_original = your_df['date']
+actual_returns_plot_original = your_df['ret'].clip(lower=-15, upper=15)
+predictions_plot_original = your_df[selected_model].clip(lower=-15, upper=15)
+
+df_prices_original = pd.DataFrame({
+    "Date": dates_original,
+    "Actual": actual_returns_plot_original,
+    "Predictions": predictions_plot_original
+})
+
+# --- Plot: Actual vs Predictions (Original - No Outlier Removal) ---
 st.subheader("Predictions vs Actual (Original - No Outlier Removal)")
+fig_prices, ax_prices = plt.subplots(figsize=(10, 6))
+ax_prices.plot(df_prices_original['Date'], df_prices_original['Predictions'], label="Predictions", color='blue')
+ax_prices.plot(df_prices_original['Date'], df_prices_original['Actual'], label="Actual", color='orange')
+ax_prices.set_xlabel('Date')
+ax_prices.set_ylabel('Returns')
+ax_prices.set_title('Predictions vs Actual (Original)')
+ax_prices.legend()
 st.pyplot(fig_prices)
+
+# --- R² Score (Original) ---
+df_prices_original = df_prices_original.dropna(subset=['Actual', 'Predictions'])
+
+r2_val = r2_score(
+    df_prices_original['Actual'].values.reshape(-1, 1),
+    df_prices_original['Predictions'].values.reshape(-1, 1)
+)
+
 st.markdown(f"### R² Score (Original): {r2_val:.4f}")
+
+# --- Summary statistics (original prediction column) ---
 st.markdown("### Prediction Summary Statistics (Original)")
-st.write(df_prices['Predictions'].describe())
+st.write(df_prices_original['Predictions'].describe())
