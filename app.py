@@ -40,11 +40,11 @@ if 'date' not in your_df.columns or 'ret' not in your_df.columns:
     st.error("Error: Your DataFrame must contain 'date' and 'ret' columns.")
     st.stop()
 
-# --- Function to remove outliers within +/- 10% range ---
-def remove_close_outliers(series):
+# --- Function to remove outliers within +/- a specified percentage range of the median ---
+def remove_close_outliers(series, tolerance=0.20): # Default tolerance is +/- 20%
     median_val = series.median()
-    lower_bound = median_val - 0.10 * abs(median_val)
-    upper_bound = median_val + 0.10 * abs(median_val)
+    lower_bound = median_val - tolerance * abs(median_val)
+    upper_bound = median_val + tolerance * abs(median_val)
     return series[(series >= lower_bound) & (series <= upper_bound)]
 
 # --- Apply outlier removal to actual returns ---
@@ -73,8 +73,8 @@ st.write("Shape of df_prices_cleaned before dropping NaNs:", df_prices_cleaned.s
 df_prices_cleaned = df_prices_cleaned.dropna(subset=['Actual', 'Predictions'])
 st.write("Shape of df_prices_cleaned after dropping NaNs:", df_prices_cleaned.shape) # DEBUG
 
-# --- Plot: Actual vs Predictions (Outliers Removed within +/- 10%) ---
-st.subheader("Predictions vs Actual (Outliers Removed within +/- 10%)")
+# --- Plot: Actual vs Predictions (Outliers Removed within +/- 20%) ---
+st.subheader("Predictions vs Actual (Outliers Removed within +/- 20%)")
 if not df_prices_cleaned.empty:
     fig_prices_cleaned, ax_prices_cleaned = plt.subplots(figsize=(10, 6))
     ax_prices_cleaned.plot(df_prices_cleaned['Date'], df_prices_cleaned['Predictions'], label="Predictions", color='blue')
