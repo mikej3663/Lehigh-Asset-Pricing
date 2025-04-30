@@ -2,9 +2,11 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.metrics import r2_score
 
-# --- File Upload ---
-#file_path = 'prediction_output.csv'  # Adjust this path if needed
+# --- Streamlit File Upload ---
+st.title("Neural Network Dashboard - Asset Pricing")
+
 uploaded_file = st.file_uploader("Upload your prediction_output.csv", type=["csv"])
 
 if uploaded_file is None:
@@ -14,8 +16,6 @@ if uploaded_file is None:
 # Load CSV from uploaded file
 your_df = pd.read_csv(uploaded_file)
 
-#your_df = pd.read_csv(file_path)
-
 # --- Convert 'date' column to datetime and sort ---
 your_df['date'] = pd.to_datetime(your_df['date'])
 your_df = your_df.sort_values("date")
@@ -23,7 +23,7 @@ your_df = your_df.sort_values("date")
 # --- Available Prediction Columns ---
 available_columns = ['pred_mlp_32', 'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge']
 
-# --- Group by date using median to reduce distortion ---
+# --- Group by date using median ---
 your_df = your_df.groupby('date')[['ret'] + available_columns].median().reset_index()
 
 # --- Sidebar Selectors ---
@@ -36,10 +36,10 @@ if 'date' not in your_df.columns or 'ret' not in your_df.columns:
     st.error("Error: Your DataFrame must contain 'date' and 'ret' columns.")
     st.stop()
 
-# --- Prepare plotting data ---
+# --- Prepare DataFrame ---
 dates = your_df['date']
-actual_returns = your_df['ret'].values
-predictions = your_df[selected_model].values
+actual_returns = your_df['ret'].clip(lower=-15, upper=15)
+predictions = your_df[selected_model].clip(lower=-15, upper=15)
 
 df_prices = pd.DataFrame({
     "Date": dates,
@@ -47,20 +47,10 @@ df_prices = pd.DataFrame({
     "Predictions": predictions
 })
 
-# --- Optional: Clip extreme values before smoothing for readability ---
-df_prices[['Actual', 'Predictions']] = df_prices[['Actual', 'Predictions']].clip(lower=-15, upper=15)
-
-# --- Apply rolling average smoothing ---
-window_size = 5  # You can adjust this for more or less smoothing
+# --- Rolling average smoothing ---
+window_size = 5
 df_prices['Actual_Smoothed'] = df_prices['Actual'].rolling(window=window_size).mean()
 df_prices['Predictions_Smoothed'] = df_prices['Predictions'].rolling(window=window_size).mean()
-
-# --- Dashboard Layout ---
-st.title("Neural Network Dashboard - Asset Pricing")
-
-# Show basic stats
-st.write("Prediction Summary Statistics:")
-st.write(df_prices['Predictions'].describe())
 
 # --- Plot: Smoothed Predictions vs Actual ---
 st.subheader("Predictions vs Actual")
@@ -72,3 +62,16 @@ ax_prices.set_ylabel('Returns')
 ax_prices.set_title('Predictions vs Actual')
 ax_prices.legend()
 st.pyplot(fig_prices)
+
+# --- R² Score ---
+# Drop NaNs from smoothed columns (due to rolling window)
+r2_val = r2_score(
+    df_prices['Actual_Smoothed'].dropna(),
+    df_prices['Predictions_Smoothed'].dropna()
+)
+
+st.markdown(f"### R² Score: {r2_val:.4f}")
+
+# --- Summary statistics (original prediction column) ---
+st.markdown("### Prediction Summary Statistics")
+st.write(df_prices['Predictions'].describe())
