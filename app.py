@@ -41,10 +41,14 @@ df_prices = pd.DataFrame({
     "Predictions": predictions
 })
 
-# --- Rolling average smoothing ---
-window_size = 5
-df_prices['Actual_Smoothed'] = df_prices['Actual'].rolling(window=window_size).mean()
-df_prices['Predictions_Smoothed'] = df_prices['Predictions'].rolling(window=window_size).mean()
+# --- Smoothing based on fold type ---
+if selected_fold == "Rolling":
+    window_size = 5
+    df_prices['Actual_Smoothed'] = df_prices['Actual'].rolling(window=window_size).mean()
+    df_prices['Predictions_Smoothed'] = df_prices['Predictions'].rolling(window=window_size).mean()
+else:  # Expanding
+    df_prices['Actual_Smoothed'] = df_prices['Actual'].expanding().mean()
+    df_prices['Predictions_Smoothed'] = df_prices['Predictions'].expanding().mean()
 
 # --- Plot: Smoothed Predictions vs Actual ---
 st.subheader("Predictions vs Actual")
