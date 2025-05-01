@@ -136,6 +136,7 @@ if selected_conf_matrix != 'None':
 
         # now the port_col exists, compute confusion matrix
         cm = confusion_matrix(bigresults['true_port'], bigresults[port_col])
+        st.markdown(f"### Confusion Matrix: {selected_conf_matrix}")
         fig, ax = plt.subplots(figsize=(8,6))
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
                     xticklabels=[f'P{i+1}' for i in range(nport)],
