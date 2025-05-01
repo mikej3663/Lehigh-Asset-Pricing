@@ -19,6 +19,18 @@ available_columns = [
     'pred_mlp_64_32','pred_mlp_128_64_32','pred_mlp_256_128_64_32','pred_hgbr','pred_Lasso', 'pred_Ridge'
 ]
 
+name_mapping = {
+    'pred_mlp_64_32': 'Neural Network (1 Fold)',
+    'pred_mlp_128_64_32': 'Neural Network (2 Folds)',
+    'pred_mlp_256_128_64_32': 'Neural Network (3 Folds)',
+    'pred_hgbr': 'HistGradientBoostingRegressor()',
+    'pred_Lasso': 'Lasso',
+    'pred_Ridge': 'Ridge'
+}
+
+# Replace the column names using the mapping
+new_available_columns = [name_mapping[col] for col in available_columns]
+
 # --- Group by date using median ---
 your_df = your_df.groupby('date')[['ret'] + available_columns].median().reset_index()
 
