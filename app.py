@@ -41,7 +41,7 @@ selected_conf_matrix = st.sidebar.selectbox("Confusion Matrices", confusion_matr
 
 # --- Show welcome page if nothing is selected, then stop ---
 if selected_model_matrix == 'None' and selected_conf_matrix == 'None':
-    st.header("Lehigh Asset Pricing")
+
     st.markdown("""
 **By:** Joseph Carruth, Jay Geneve, Michael Jamesley, and Evan Trock
 
