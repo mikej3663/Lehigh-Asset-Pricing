@@ -43,7 +43,7 @@ if selected_model_matrix == 'None' and selected_conf_matrix == 'None':
 
     st.markdown("**By:** Joseph Carruth, Jay Geneve, Michael Jamesley, and Evan Trock")
 
----
+
 st.image("Market.png", use_column_width=True)
 
 st.markdown("""
