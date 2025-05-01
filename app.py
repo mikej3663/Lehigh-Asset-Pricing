@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import ParameterGrid
 from sklearn.metrics import r2_score
 
 # --- Streamlit File Upload ---
@@ -18,7 +17,7 @@ your_df = your_df.sort_values("date")
 
 # --- Available Prediction Columns ---
 available_columns = [
-    'pred_mlp_64_32','pred_mlp_128_64_32','pred_mlp_256_128_64_32','pred_hgbr','pred_Lasso', 'pred_Ridge'
+    'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_mlp_256_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge'
 ]
 
 # Mapping for human-readable names (for dropdown display only)
@@ -30,6 +29,9 @@ name_mapping = {
     'pred_Lasso': 'Lasso',
     'pred_Ridge': 'Ridge'
 }
+
+# Reverse the mapping to map selected model back to original column names
+reverse_mapping = {v: k for k, v in name_mapping.items()}
 
 # --- Group by date using median ---
 your_df = your_df.groupby('date')[['ret'] + available_columns].median().reset_index()
@@ -57,7 +59,9 @@ actual_returns = your_df['ret'].clip(lower=-15, upper=15)
 
 # If a model is selected, get the predictions, otherwise set them to None
 if selected_model_matrix != 'None':
-    predictions = your_df[selected_model_matrix].clip(lower=-15, upper=15)
+    # Map the selected model name to the original column name
+    selected_model_column = reverse_mapping[selected_model_matrix]
+    predictions = your_df[selected_model_column].clip(lower=-15, upper=15)
 else:
     predictions = None
 
@@ -101,7 +105,7 @@ st.write(df_prices['Predictions'].describe())
 # --- Confusion Matrices (Generate only when selected model is chosen) ---
 if selected_conf_matrix != 'None':
     # Assuming bigresults is loaded from a file for confusion matrix (adjust file path accordingly)
-    bigresults = pd.read_csv('portfolio4.csv')
+    bigresults = pd.read_csv('predictions/portfolio4.csv')
 
     # Define model_dict and params (adjust according to your needs)
     model_dict = {'NN1': 'pred_mlp_64_32', 'NN2': 'pred_mlp_128_64_32', 'NN3': 'pred_mlp_256_128_64_32', 'HGBR': 'pred_hgbr', 'Lasso': 'pred_Lasso', 'Ridge': 'pred_Ridge'}
