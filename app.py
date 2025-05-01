@@ -34,7 +34,7 @@ your_df = your_df.groupby('date')[['ret'] + available_columns].median().reset_in
 
 # --- Sidebar Selectors ---
 model_matrix_options = ['None'] + list(name_mapping.values())
-confusion_matrix_options = ['None', 'NN2', 'NN3', 'NN4', 'HGBR', 'Lasso', 'Ridge', 'Residuals']
+confusion_matrix_options = ['None', 'NN2', 'NN3', 'NN4', 'HGBR', 'Lasso', 'Ridge']
 selected_model_matrix = st.sidebar.selectbox("Model Matrix", model_matrix_options, index=0)
 selected_conf_matrix = st.sidebar.selectbox("Additional Graphs", confusion_matrix_options, index=0)
 
@@ -110,45 +110,48 @@ if selected_conf_matrix != 'None':
     }
     nport = 5
 
-    if selected_conf_matrix == 'Residuals':
-        # Residual Histogram
-        df_prices = pd.DataFrame({
-            "Date": bigresults['date'],
-            "Actual": bigresults['ret'],
-            "Predictions": bigresults['pred_mlp_64_32']  # or choose a default prediction column?
-        })
-        df_clean = df_prices.dropna(subset=['Actual', 'Predictions'])
-        df_clean['Residual'] = df_clean['Actual'] - df_clean['Predictions']
-        fig_hist, ax_hist = plt.subplots()
-        sns.histplot(df_clean['Residual'], bins=30, kde=True, ax=ax_hist)
-        ax_hist.set_title("Histogram of Prediction Errors (Residuals)")
-        ax_hist.set_xlabel("Residual")
-        ax_hist.set_ylabel("Frequency")
-        st.pyplot(fig_hist)
-    else:
-        mr = model_dict[selected_conf_matrix]
-        port_col = f'port_{mr}'
+    mr = model_dict[selected_conf_matrix]
+    port_col = f'port_{mr}'
 
-        # build true portfolios
-        bigresults['true_port'] = bigresults.groupby('date')['ret']\
+    # build true portfolios
+    bigresults['true_port'] = bigresults.groupby('date')['ret']\
+        .transform(lambda x: pd.qcut(x, nport, labels=False, duplicates='drop') + 1)
+
+    # build predicted portfolios
+    if mr not in bigresults.columns:
+        st.error(f"Predictions column {mr} not found in your CSV.")
+    else:
+        bigresults[port_col] = bigresults.groupby('date')[mr]\
             .transform(lambda x: pd.qcut(x, nport, labels=False, duplicates='drop') + 1)
 
-        # build predicted portfolios
-        if mr not in bigresults.columns:
-            st.error(f"Predictions column {mr} not found in your CSV.")
-        else:
-            bigresults[port_col] = bigresults.groupby('date')[mr]\
-                .transform(lambda x: pd.qcut(x, nport, labels=False, duplicates='drop') + 1)
+        # now the port_col exists, compute confusion matrix
+        cm = confusion_matrix(bigresults['true_port'], bigresults[port_col])
+        st.markdown(f"### Confusion Matrix: {selected_conf_matrix}")
+        fig, ax = plt.subplots(figsize=(8,6))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                    xticklabels=[f'P{i+1}' for i in range(nport)],
+                    yticklabels=[f'P{i+1}' for i in range(nport)],
+                    ax=ax)
+        ax.set_xlabel('Predicted Portfolio')
+        ax.set_ylabel('True Portfolio')
+        ax.set_title(f'Confusion Matrix ({selected_conf_matrix})')
+        st.pyplot(fig)
 
-            # now the port_col exists, compute confusion matrix
-            cm = confusion_matrix(bigresults['true_port'], bigresults[port_col])
-            st.markdown(f"### Confusion Matrix: {selected_conf_matrix}")
-            fig, ax = plt.subplots(figsize=(8,6))
-            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
-                        xticklabels=[f'P{i+1}' for i in range(nport)],
-                        yticklabels=[f'P{i+1}' for i in range(nport)],
-                        ax=ax)
-            ax.set_xlabel('Predicted Portfolio')
-            ax.set_ylabel('True Portfolio')
-            ax.set_title(f'Confusion Matrix ({selected_conf_matrix})')
-            st.pyplot(fig)
+    if selected_model_matrix != 'None':
+        model_col = reverse_mapping[selected_model_matrix]
+        if selected_conf_matrix in model_dict and model_dict[selected_conf_matrix] == model_col:
+            preds = your_df[model_col].clip(lower=-15, upper=15)
+            df_prices = pd.DataFrame({
+                "Date": dates,
+                "Actual": actual_returns,
+                "Predictions": preds
+            })
+            df_clean = df_prices.dropna(subset=['Actual','Predictions'])
+            st.markdown("### Histogram of Prediction Errors")
+            df_clean['Residual'] = df_clean['Actual'] - df_clean['Predictions']
+            fig_hist, ax_hist = plt.subplots()
+            sns.histplot(df_clean['Residual'], bins=30, kde=True, ax=ax_hist)
+            ax_hist.set_title("Distribution of Residuals")
+            ax_hist.set_xlabel("Prediction Error (Residual)")
+            ax_hist.set_ylabel("Frequency")
+            st.pyplot(fig_hist)
