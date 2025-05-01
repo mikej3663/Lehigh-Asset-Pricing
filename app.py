@@ -44,25 +44,25 @@ if selected_model_matrix == 'None' and selected_conf_matrix == 'None':
     st.markdown("**By:** Joseph Carruth, Jay Geneve, Michael Jamesley, and Evan Trock")
 
 
-st.image("Market.png", use_container_width=True)
-
-st.markdown("""
-
-### Purpose  
-To fit varying regressors and neural networks to predict stock returns to ultimately create a Zero-Cost Long-Short Portfolio.
-
-### Data  
-- WRDS CRSP Data  
-- OpenAP Data  
-- Fama-French Five Factors + Momentum
-
-### Methodology  
-Import packages and data, lagging signals to effectively predict stock returns in the next year. We selected only the top 5000 firms by their net operating assets, since the model took too long to run on the entire firms list. We split the training dataset into 2020 with our holdout being 2021–2024. We preprocessed the data in a custom ML pipeline, using cross-sectional means for all continuous OpenAP features. We then trained on an expanding window each year after validation, fitting Lasso, Ridge, HistGradientBoostingRegressor, and three MLPRegressors. Finally, we binned predictions into portfolios and compared against true returns to evaluate trading performance.
-
-### Results  
-Our Long-Short portfolio saw significant gains—outperforming the S&P 500 net of the risk-free rate.
-""")
-st.stop()
+    st.image("Market.png", use_container_width=True)
+    
+    st.markdown("""
+    
+    ### Purpose  
+    To fit varying regressors and neural networks to predict stock returns to ultimately create a Zero-Cost Long-Short Portfolio.
+    
+    ### Data  
+    - WRDS CRSP Data  
+    - OpenAP Data  
+    - Fama-French Five Factors + Momentum
+    
+    ### Methodology  
+    Import packages and data, lagging signals to effectively predict stock returns in the next year. We selected only the top 5000 firms by their net operating assets, since the model took too long to run on the entire firms list. We split the training dataset into 2020 with our holdout being 2021–2024. We preprocessed the data in a custom ML pipeline, using cross-sectional means for all continuous OpenAP features. We then trained on an expanding window each year after validation, fitting Lasso, Ridge, HistGradientBoostingRegressor, and three MLPRegressors. Finally, we binned predictions into portfolios and compared against true returns to evaluate trading performance.
+    
+    ### Results  
+    Our Long-Short portfolio saw significant gains—outperforming the S&P 500 net of the risk-free rate.
+    """)
+    st.stop()
 
 # --- At least one visualization will render below ---
 
