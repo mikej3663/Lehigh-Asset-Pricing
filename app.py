@@ -36,7 +36,7 @@ your_df = your_df.groupby('date')[['ret'] + available_columns].median().reset_in
 model_matrix_options = ['None'] + list(name_mapping.values())
 selected_model_matrix = st.sidebar.selectbox("Model Matrix", model_matrix_options, index=0)
 
-confusion_matrix_options = ['None', 'NN1', 'NN2', 'NN3', 'HGBR', 'Lasso', 'Ridge']
+confusion_matrix_options = ['None', 'NN2', 'NN3', 'NN4', 'HGBR', 'Lasso', 'Ridge']
 selected_conf_matrix = st.sidebar.selectbox("Confusion Matrices", confusion_matrix_options, index=0)
 
 # --- Show welcome page if nothing is selected, then stop ---
