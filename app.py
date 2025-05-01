@@ -85,26 +85,36 @@ if selected_model_matrix != 'None':
 
 # Handle confusion‐matrix dropdown
 if selected_conf_matrix != 'None':
-    bigresults = pd.read_csv('prediction_output3.csv')
+    bigresults = pd.read_csv('portfolio4.csv')
+    # ... (your renaming/reset_index steps) ...
+
     model_dict = {
-        'NN1':'pred_mlp_64_32','NN2':'pred_mlp_128_64_32','NN3':'pred_mlp_256_128_64_32',
-        'HGBR':'pred_hgbr','Lasso':'pred_Lasso','Ridge':'pred_Ridge'
+      'NN1':'pred_mlp_64_32','NN2':'pred_mlp_128_64_32','NN3':'pred_mlp_256_128_64_32',
+      'HGBR':'pred_hgbr','Lasso':'pred_Lasso','Ridge':'pred_Ridge'
     }
     nport = 5
     mr = model_dict[selected_conf_matrix]
-    bigresults['true_port'] = bigresults.groupby('date')['ret']\
-                                   .transform(lambda x: pd.qcut(x, nport, labels=False, duplicates='drop')+1)
     port_col = f'port_{mr}'
-    if port_col not in bigresults.columns:
-        st.error(f"Skipping {mr}: {port_col} not found.")
+
+    # build true portfolios
+    bigresults['true_port'] = bigresults.groupby('date')['ret']\
+        .transform(lambda x: pd.qcut(x, nport, labels=False, duplicates='drop') + 1)
+
+    # build predicted portfolios
+    if mr not in bigresults.columns:
+        st.error(f"Predictions column {mr} not found in your CSV.")
     else:
+        bigresults[port_col] = bigresults.groupby('date')[mr]\
+            .transform(lambda x: pd.qcut(x, nport, labels=False, duplicates='drop') + 1)
+
+        # now the port_col exists, compute confusion matrix
         cm = confusion_matrix(bigresults['true_port'], bigresults[port_col])
-        fig2, ax2 = plt.subplots(figsize=(8,6))
+        fig, ax = plt.subplots(figsize=(8,6))
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
                     xticklabels=[f'P{i+1}' for i in range(nport)],
                     yticklabels=[f'P{i+1}' for i in range(nport)],
-                    ax=ax2)
-        ax2.set_xlabel('Predicted Portfolio')
-        ax2.set_ylabel('True Portfolio')
-        ax2.set_title(f'Confusion Matrix ({selected_conf_matrix})')
-        st.pyplot(fig2)
+                    ax=ax)
+        ax.set_xlabel('Predicted Portfolio')
+        ax.set_ylabel('True Portfolio')
+        ax.set_title(f'Confusion Matrix ({selected_conf_matrix})')
+        st.pyplot(fig)
