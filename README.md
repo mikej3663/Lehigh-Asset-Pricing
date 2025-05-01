@@ -9,6 +9,7 @@ To fit varying regressors and neural networks to predict stock returns to ultima
 2. OpenAP Data
 3. Fama French Five Factors + Momentum
 
+
 ## Methodology
 
 Import packages and data, lagging signals to effectively predict stock returns in the next year. We selected only the top 5000 firms by their net operating assets, since the model took too long to run on the entire firms list. We split the training dataset into 2020 with our holdout being 2021-2024. We preprocessed the data in Custom ML Pipeline. Cross Sectional Means for all continuous data in the OpenAP dataset. We used an expanding window to train our model every year after validation. We used Lasso, Ridge, HistGradientBoostingRegressor and 3 MLPRegressors to try to fit the data to returns. We then binned the predictions to portfolios and analyzed the true returns to see how our model did trading. 
@@ -16,6 +17,18 @@ Import packages and data, lagging signals to effectively predict stock returns i
 ## Results 
 
 Our Long-Short portfolio saw significant gains. With the Ridge model seeing inflated gains from Penny stocks. The Multi-Layer-Perceptron Models had strong performance and as we see from the outcome, the 3 layers performed the best, while four layers showed diminishing marginal returns. 
+
+
+| Model | Sharpe Ratio |
+| -- | -- |
+| mkt | 0.25561435483589773 |
+| mlp_128_64_32 | 0.4029660847272751 |
+|mlp_256_128_64_32 | 0.09799322755044002 |
+|mlp_64_32 | -0.3998369946074465 |
+|hgbr | 1.4319704242917604 |
+|Ridge | 0.0672141449653041 |
+
+
 
 
 ## Citations
