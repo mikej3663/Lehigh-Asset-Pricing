@@ -62,7 +62,7 @@ Import packages and data, lagging signals to effectively predict stock returns i
 ### Results  
 Our Long-Short portfolio saw significant gains—outperforming the S&P 500 net of the risk-free rate.
 """)
-    st.stop()
+st.stop()
 
 # --- At least one visualization will render below ---
 
