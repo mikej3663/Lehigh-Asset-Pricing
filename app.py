@@ -37,7 +37,7 @@ model_matrix_options = ['None'] + list(name_mapping.values())
 selected_model_matrix = st.sidebar.selectbox("Model Matrix", model_matrix_options, index=0)
 
 confusion_matrix_options = ['None', 'NN2', 'NN3', 'NN4', 'HGBR', 'Lasso', 'Ridge']
-selected_conf_matrix = st.sidebar.selectbox("Confusion Matrices", confusion_matrix_options, index=0)
+selected_conf_matrix = st.sidebar.selectbox("Additional Graphs", confusion_matrix_options, index=0)
 
 # --- Show welcome page if nothing is selected, then stop ---
 if selected_model_matrix == 'None' and selected_conf_matrix == 'None':
@@ -100,16 +100,6 @@ if selected_model_matrix != 'None':
     st.markdown("### Prediction Summary Statistics")
     st.write(df_clean['Predictions'].describe())
 
-    # Residual Histogram
-    st.markdown("### Prediction Error Histogram")
-    df_clean['Residual'] = df_clean['Actual'] - df_clean['Predictions']
-    fig_hist, ax_hist = plt.subplots()
-    sns.histplot(df_clean['Residual'], bins=30, kde=True, ax=ax_hist)
-    ax_hist.set_title("Histogram of Prediction Errors (Residuals)")
-    ax_hist.set_xlabel("Residual")
-    ax_hist.set_ylabel("Frequency")
-    st.pyplot(fig_hist)
-
 # Handle confusion‐matrix dropdown
 if selected_conf_matrix != 'None':
     bigresults = pd.read_csv('prediction_output3.csv')
@@ -146,3 +136,13 @@ if selected_conf_matrix != 'None':
         ax.set_ylabel('True Portfolio')
         ax.set_title(f'Confusion Matrix ({selected_conf_matrix})')
         st.pyplot(fig)
+
+        # Residual Histogram
+        st.markdown("### Prediction Error Histogram")
+        df_clean['Residual'] = df_clean['Actual'] - df_clean['Predictions']
+        fig_hist, ax_hist = plt.subplots()
+        sns.histplot(df_clean['Residual'], bins=30, kde=True, ax=ax_hist)
+        ax_hist.set_title("Histogram of Prediction Errors (Residuals)")
+        ax_hist.set_xlabel("Residual")
+        ax_hist.set_ylabel("Frequency")
+        st.pyplot(fig_hist)
