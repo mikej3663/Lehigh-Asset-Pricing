@@ -20,9 +20,9 @@ available_columns = [
     'pred_hgbr', 'pred_Lasso', 'pred_Ridge'
 ]
 name_mapping = {
-    'pred_mlp_64_32': 'Neural Network (1 Fold)',
-    'pred_mlp_128_64_32': 'Neural Network (2 Folds)',
-    'pred_mlp_256_128_64_32': 'Neural Network (3 Folds)',
+    'pred_mlp_64_32': 'Neural Network (2 Folds)',
+    'pred_mlp_128_64_32': 'Neural Network (3 Folds)',
+    'pred_mlp_256_128_64_32': 'Neural Network (4 Folds)',
     'pred_hgbr': 'HistGradientBoostingRegressor()',
     'pred_Lasso': 'Lasso',
     'pred_Ridge': 'Ridge'
@@ -89,7 +89,7 @@ if selected_conf_matrix != 'None':
     # ... (your renaming/reset_index steps) ...
 
     model_dict = {
-      'NN1':'pred_mlp_64_32','NN2':'pred_mlp_128_64_32','NN3':'pred_mlp_256_128_64_32',
+      'NN2':'pred_mlp_64_32','NN3':'pred_mlp_128_64_32','NN4':'pred_mlp_256_128_64_32',
       'HGBR':'pred_hgbr','Lasso':'pred_Lasso','Ridge':'pred_Ridge'
     }
     nport = 5
