@@ -15,4 +15,14 @@ Import packages and data, lagging signals to effectively predict stock returns i
 
 ## Results 
 
-Our Long-Short portfolio saw significant gains. Some over the S&P500 minus the risk free rate.
+Our Long-Short portfolio saw significant gains. With the Ridge model seeing inflated gains from Penny stocks. The Multi-Layer-Perceptron Models had strong performance and as we see from the outcome, the 3 layers performed the best, while four layers showed diminishing marginal returns. 
+
+
+## Citations
+
+Gu, Shihao and Kelly, Bryan T. and Xiu, Dacheng, Empirical Asset Pricing via Machine Learning (September 13, 2019). Chicago Booth Research Paper No. 18-04, 31st Australasian Finance and Banking Conference 2018, Yale ICF Working Paper No. 2018-09, Available at SSRN: https://ssrn.com/abstract=3159577 or http://dx.doi.org/10.2139/ssrn.3159577 
+
+Voigt, S. (2024, June 17). Replicating Gu, Kelly & Xiu (2020). Tidy Finance. https://www.tidy-finance.org/blog/gu-kelly-xiu-replication/
+Senevirathne, K. (2024, March 4). How I’m using machine learning to trade in the stock market. Medium. https://medium.com/analytics-vidhya/how-im-using-machine-learning-to-trade-in-the-stock-market-3ba981a2ffc2
+ 
+
