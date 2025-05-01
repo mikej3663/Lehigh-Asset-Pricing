@@ -41,11 +41,12 @@ selected_conf_matrix = st.sidebar.selectbox("Additional Graphs", confusion_matri
 # --- Show welcome page if nothing is selected, then stop ---
 if selected_model_matrix == 'None' and selected_conf_matrix == 'None':
 
-    st.markdown("""
-**By:** Joseph Carruth, Jay Geneve, Michael Jamesley, and Evan Trock
+    st.markdown("**By:** Joseph Carruth, Jay Geneve, Michael Jamesley, and Evan Trock")
 
 ---
 st.image("Market.png", use_column_width=True)
+
+st.markdown("""
 
 ### Purpose  
 To fit varying regressors and neural networks to predict stock returns to ultimately create a Zero-Cost Long-Short Portfolio.
