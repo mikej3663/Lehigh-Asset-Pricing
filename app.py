@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix, r2_score
+from sklearn.metrics import recall_score, precision_score
 
 # --- Streamlit File Upload ---
 st.title("Neural Network Dashboard - Asset Pricing")
@@ -127,6 +128,36 @@ if selected_conf_matrix != 'None':
         bigresults[port_col] = bigresults.groupby('date')[mr]\
             .transform(lambda x: pd.qcut(x, nport, labels=False, duplicates='drop') + 1)
 
+        def calculate_tnr_fnr():
+            tnr_fnr_results = {}
+            for col in bigresults.columns:
+                if col.startswith('pred_'):
+                    model_name = col[5:]
+                    bigresults['quintile_ret'] = bigresults.groupby('date')['ret'].transform(lambda x: pd.qcut(x, 5, labels=False, duplicates='drop') + 1)
+                    bigresults[f'quintile_{col}'] = bigresults.groupby('date')[col].transform(lambda x: pd.qcut(x, 5, labels=False, duplicates='drop') + 1)
+
+                    y_true = bigresults['quintile_ret'] == 1
+                    y_pred = bigresults[f'quintile_{col}'] == 1
+                    recall_q1 = recall_score(y_true, y_pred)
+                    prec_q1 = precision_score(y_true, y_pred)
+
+                    y_true = bigresults['quintile_ret'] == 5
+                    y_pred = bigresults[f'quintile_{col}'] == 5
+                    recall_q5 = recall_score(y_true, y_pred)
+                    prec_q5 = precision_score(y_true, y_pred)
+
+                    tnr_fnr_results[model_name] = {
+                        'recall_q1': recall_q1,
+                        'precision_q1': prec_q1,
+                        'recall_q5': recall_q5,
+                        'precision_q5': prec_q5
+                    }
+
+            df = pd.DataFrame.from_dict(tnr_fnr_results, orient='index').reset_index().rename(columns={'index': 'Model'})
+            df.to_csv("precisionrecallscore.csv", index=False)
+
+        calculate_tnr_fnr()
+
         # now the port_col exists, compute confusion matrix
         cm = confusion_matrix(bigresults['true_port'], bigresults[port_col])
         st.markdown(f"### Confusion Matrix: {selected_conf_matrix}")
@@ -158,3 +189,10 @@ if selected_conf_matrix != 'None':
             ax_hist.set_xlabel("Prediction Error (Residual)")
             ax_hist.set_ylabel("Frequency")
             st.pyplot(fig_hist)
+
+try:
+    precision_df = pd.read_csv("precisionrecallscore.csv")
+    st.markdown("### TNR and FNR Summary Table")
+    st.dataframe(precision_df)
+except FileNotFoundError:
+    st.warning("precisionrecallscore.csv not found. Please make sure it exists in the directory.")
