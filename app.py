@@ -34,9 +34,8 @@ your_df = your_df.groupby('date')[['ret'] + available_columns].median().reset_in
 
 # --- Sidebar Selectors ---
 model_matrix_options = ['None'] + list(name_mapping.values())
+confusion_matrix_options = ['None', 'NN2', 'NN3', 'NN4', 'HGBR', 'Lasso', 'Ridge', 'Residuals']
 selected_model_matrix = st.sidebar.selectbox("Model Matrix", model_matrix_options, index=0)
-
-confusion_matrix_options = ['None', 'NN2', 'NN3', 'NN4', 'HGBR', 'Lasso', 'Ridge']
 selected_conf_matrix = st.sidebar.selectbox("Additional Graphs", confusion_matrix_options, index=0)
 
 # --- Show welcome page if nothing is selected, then stop ---
@@ -110,35 +109,15 @@ if selected_conf_matrix != 'None':
       'HGBR':'pred_hgbr','Lasso':'pred_Lasso','Ridge':'pred_Ridge'
     }
     nport = 5
-    mr = model_dict[selected_conf_matrix]
-    port_col = f'port_{mr}'
 
-    # build true portfolios
-    bigresults['true_port'] = bigresults.groupby('date')['ret']\
-        .transform(lambda x: pd.qcut(x, nport, labels=False, duplicates='drop') + 1)
-
-    # build predicted portfolios
-    if mr not in bigresults.columns:
-        st.error(f"Predictions column {mr} not found in your CSV.")
-    else:
-        bigresults[port_col] = bigresults.groupby('date')[mr]\
-            .transform(lambda x: pd.qcut(x, nport, labels=False, duplicates='drop') + 1)
-
-        # now the port_col exists, compute confusion matrix
-        cm = confusion_matrix(bigresults['true_port'], bigresults[port_col])
-        st.markdown(f"### Confusion Matrix: {selected_conf_matrix}")
-        fig, ax = plt.subplots(figsize=(8,6))
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
-                    xticklabels=[f'P{i+1}' for i in range(nport)],
-                    yticklabels=[f'P{i+1}' for i in range(nport)],
-                    ax=ax)
-        ax.set_xlabel('Predicted Portfolio')
-        ax.set_ylabel('True Portfolio')
-        ax.set_title(f'Confusion Matrix ({selected_conf_matrix})')
-        st.pyplot(fig)
-
+    if selected_conf_matrix == 'Residuals':
         # Residual Histogram
-        st.markdown("### Prediction Error Histogram")
+        df_prices = pd.DataFrame({
+            "Date": bigresults['date'],
+            "Actual": bigresults['ret'],
+            "Predictions": bigresults['pred_mlp_64_32']  # or choose a default prediction column?
+        })
+        df_clean = df_prices.dropna(subset=['Actual', 'Predictions'])
         df_clean['Residual'] = df_clean['Actual'] - df_clean['Predictions']
         fig_hist, ax_hist = plt.subplots()
         sns.histplot(df_clean['Residual'], bins=30, kde=True, ax=ax_hist)
@@ -146,3 +125,30 @@ if selected_conf_matrix != 'None':
         ax_hist.set_xlabel("Residual")
         ax_hist.set_ylabel("Frequency")
         st.pyplot(fig_hist)
+    else:
+        mr = model_dict[selected_conf_matrix]
+        port_col = f'port_{mr}'
+
+        # build true portfolios
+        bigresults['true_port'] = bigresults.groupby('date')['ret']\
+            .transform(lambda x: pd.qcut(x, nport, labels=False, duplicates='drop') + 1)
+
+        # build predicted portfolios
+        if mr not in bigresults.columns:
+            st.error(f"Predictions column {mr} not found in your CSV.")
+        else:
+            bigresults[port_col] = bigresults.groupby('date')[mr]\
+                .transform(lambda x: pd.qcut(x, nport, labels=False, duplicates='drop') + 1)
+
+            # now the port_col exists, compute confusion matrix
+            cm = confusion_matrix(bigresults['true_port'], bigresults[port_col])
+            st.markdown(f"### Confusion Matrix: {selected_conf_matrix}")
+            fig, ax = plt.subplots(figsize=(8,6))
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                        xticklabels=[f'P{i+1}' for i in range(nport)],
+                        yticklabels=[f'P{i+1}' for i in range(nport)],
+                        ax=ax)
+            ax.set_xlabel('Predicted Portfolio')
+            ax.set_ylabel('True Portfolio')
+            ax.set_title(f'Confusion Matrix ({selected_conf_matrix})')
+            st.pyplot(fig)
