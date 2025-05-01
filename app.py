@@ -61,4 +61,27 @@ df_prices = pd.DataFrame({
 })
 
 # --- Plot: Actual vs Predictions (No smoothing) ---
-st.subheader("
+st.subheader("Predictions vs Actual")
+fig_prices, ax_prices = plt.subplots(figsize=(10, 6))
+ax_prices.plot(df_prices['Date'], df_prices['Predictions'], label="Predictions", color='blue')
+ax_prices.plot(df_prices['Date'], df_prices['Actual'], label="Actual", color='orange')  # No smoothing on Actual
+ax_prices.set_xlabel('Date')
+ax_prices.set_ylabel('Returns')
+ax_prices.set_title('Predictions vs Actual')
+ax_prices.legend()
+st.pyplot(fig_prices)
+
+# --- R² Score ---
+# Drop NaNs from columns to avoid mismatch
+df_prices = df_prices.dropna(subset=['Actual', 'Predictions'])
+
+r2_val = r2_score(
+    df_prices['Actual'],
+    df_prices['Predictions']
+)
+
+st.markdown(f"### R² Score: {r2_val:.4f}")
+
+# --- Summary statistics (original prediction column) ---
+st.markdown("### Prediction Summary Statistics")
+st.write(df_prices['Predictions'].describe())
