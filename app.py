@@ -8,12 +8,12 @@ from sklearn.metrics import r2_score
 # --- Streamlit File Upload ---
 st.title("Neural Network Dashboard - Asset Pricing")
 
-file_path = 'prediction_output3.csv'
-your_df = pd.read_csv(file_path)
+# Load the portfolio data
+file_path = 'portfolio4.csv'
+bigresults = pd.read_csv(file_path)
 
-# --- Convert 'date' column to datetime and sort ---
-your_df['date'] = pd.to_datetime(your_df['date'])
-your_df = your_df.sort_values("date")
+# Check the columns in the loaded dataset
+st.write("Bigresults columns:", bigresults.columns)
 
 # --- Available Prediction Columns ---
 available_columns = [
@@ -34,7 +34,7 @@ name_mapping = {
 reverse_mapping = {v: k for k, v in name_mapping.items()}
 
 # --- Group by date using median ---
-your_df = your_df.groupby('date')[['ret'] + available_columns].median().reset_index()
+your_df = bigresults.groupby('date')[['ret'] + available_columns].median().reset_index()
 
 # --- Sidebar Selectors ---
 # Dropdown for Model Matrix (None or Model)
@@ -107,27 +107,26 @@ if selected_conf_matrix != 'None':
     # Assuming bigresults is loaded from a file for confusion matrix (adjust file path accordingly)
     bigresults = pd.read_csv('portfolio4.csv')
 
-    # Define model_dict and params (adjust according to your needs)
-    model_dict = {'NN1': 'pred_mlp_64_32', 'NN2': 'pred_mlp_128_64_32', 'NN3': 'pred_mlp_256_128_64_32', 'HGBR': 'pred_hgbr', 'Lasso': 'pred_Lasso', 'Ridge': 'pred_Ridge'}
-    params = {}  # Assume params are defined elsewhere or imported as needed
-    nport = 5
+    # Check the columns of bigresults
+    st.write("Bigresults columns:", bigresults.columns)
 
+    # Use the model name to get the portfolio column and predictions column
     model_name = model_dict[selected_conf_matrix]
-
-    # True portfolio: based on actual returns
-    bigresults['true_port'] = bigresults.groupby('date')['ret'].transform(
-        lambda x: pd.qcut(x, nport, labels=False, duplicates='drop') + 1
-    )
-
-    # Predicted portfolio: based on model signal
     port_col = f'port_{model_name}'
 
+    # Ensure the portfolio column exists
     if port_col not in bigresults.columns:
         st.error(f"Skipping {model_name}: {port_col} not found.")
     else:
-        # Create portfolios based on predictions
+        # True portfolio: based on actual returns (we'll use the first portfolio, e.g., port_1, as the true values)
+        bigresults['true_port'] = bigresults.groupby('date')['port_1'].transform(
+            lambda x: pd.qcut(x, nport, labels=False, duplicates='drop') + 1
+        )
+
+        # Create confusion matrix based on true vs predicted portfolios
         cm = confusion_matrix(bigresults['true_port'], bigresults[port_col])
 
+        # Plot confusion matrix
         plt.figure(figsize=(8, 6))
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
                     xticklabels=[f'P{p+1}' for p in range(nport)],
