@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import ParameterGrid
+from sklearn.metrics import r2_score
 
 # --- Streamlit File Upload ---
 st.title("Neural Network Dashboard - Asset Pricing")
