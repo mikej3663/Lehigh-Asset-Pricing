@@ -45,7 +45,7 @@ if selected_model_matrix == 'None' and selected_conf_matrix == 'None':
 **By:** Joseph Carruth, Jay Geneve, Michael Jamesley, and Evan Trock
 
 ---
- st.image("Market.png", use_column_width=True)
+st.image("Market.png", use_column_width=True)
 
 ### Purpose  
 To fit varying regressors and neural networks to predict stock returns to ultimately create a Zero-Cost Long-Short Portfolio.
