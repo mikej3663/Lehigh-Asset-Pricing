@@ -35,7 +35,7 @@ new_available_columns = [name_mapping[col] for col in available_columns]
 your_df = your_df.groupby('date')[['ret'] + available_columns].median().reset_index()
 
 # --- Sidebar Selectors ---
-selected_model = st.sidebar.selectbox("Model Type", available_columns)
+selected_model = st.sidebar.selectbox("Model Type", new_available_columns)
 
 # --- Check for required columns ---
 if 'date' not in your_df.columns or 'ret' not in your_df.columns:
