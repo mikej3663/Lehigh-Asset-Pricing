@@ -40,19 +40,22 @@ if 'date' not in your_df.columns or 'ret' not in your_df.columns:
     st.error("Error: Your DataFrame must contain 'date' and 'ret' columns.")
     st.stop()
 
+# --- Tolerance for outlier removal (Strategy 1) ---
+outlier_tolerance = st.sidebar.slider("Outlier Tolerance (%)", 10, 100, 50) / 100.0
+
 # --- Function to remove outliers within +/- a specified percentage range of the median ---
-def remove_close_outliers(series, tolerance=0.20): # Default tolerance is +/- 20%
+def remove_close_outliers(series, tolerance):
     median_val = series.median()
     lower_bound = median_val - tolerance * abs(median_val)
     upper_bound = median_val + tolerance * abs(median_val)
     return series[(series >= lower_bound) & (series <= upper_bound)]
 
 # --- Apply outlier removal to actual returns ---
-cleaned_actual_returns = remove_close_outliers(your_df['ret'])
+cleaned_actual_returns = remove_close_outliers(your_df['ret'], outlier_tolerance)
 st.write(f"Shape of cleaned_actual_returns: {cleaned_actual_returns.shape}") # DEBUG
 
 # --- Apply outlier removal to the selected prediction model ---
-cleaned_predictions = remove_close_outliers(your_df[selected_model])
+cleaned_predictions = remove_close_outliers(your_df[selected_model], outlier_tolerance)
 st.write(f"Shape of cleaned_predictions: {cleaned_predictions.shape}") # DEBUG
 
 # --- Find intersection of indices ---
@@ -73,8 +76,8 @@ st.write("Shape of df_prices_cleaned before dropping NaNs:", df_prices_cleaned.s
 df_prices_cleaned = df_prices_cleaned.dropna(subset=['Actual', 'Predictions'])
 st.write("Shape of df_prices_cleaned after dropping NaNs:", df_prices_cleaned.shape) # DEBUG
 
-# --- Plot: Actual vs Predictions (Outliers Removed within +/- 20%) ---
-st.subheader("Predictions vs Actual (Outliers Removed within +/- 20%)")
+# --- Plot: Actual vs Predictions (Outliers Removed) ---
+st.subheader(f"Predictions vs Actual (Outliers Removed within +/- {outlier_tolerance * 100:.0f}%)")
 if not df_prices_cleaned.empty:
     fig_prices_cleaned, ax_prices_cleaned = plt.subplots(figsize=(10, 6))
     ax_prices_cleaned.plot(df_prices_cleaned['Date'], df_prices_cleaned['Predictions'], label="Predictions", color='blue')
@@ -84,25 +87,23 @@ if not df_prices_cleaned.empty:
     ax_prices_cleaned.set_title('Predictions vs Actual (Outliers Removed)')
     ax_prices_cleaned.legend()
     st.pyplot(fig_prices_cleaned)
-else:
-    st.warning("No data to plot after outlier removal.")
 
-# --- R² Score (Outliers Removed) ---
-if not df_prices_cleaned.empty and df_prices_cleaned['Actual'].notna().any() and df_prices_cleaned['Predictions'].notna().any():
-    r2_val_cleaned = r2_score(
-        df_prices_cleaned['Actual'].values.reshape(-1, 1),
-        df_prices_cleaned['Predictions'].values.reshape(-1, 1)
-    )
-    st.markdown(f"### R² Score (Outliers Removed): {r2_val_cleaned:.4f}")
-else:
-    st.warning("Cannot calculate R² score after outlier removal (likely no data).")
+    # --- R² Score (Outliers Removed) ---
+    if df_prices_cleaned['Actual'].notna().any() and df_prices_cleaned['Predictions'].notna().any():
+        r2_val_cleaned = r2_score(
+            df_prices_cleaned['Actual'].values.reshape(-1, 1),
+            df_prices_cleaned['Predictions'].values.reshape(-1, 1)
+        )
+        st.markdown(f"### R² Score (Outliers Removed): {r2_val_cleaned:.4f}")
+    else:
+        st.warning("Cannot calculate R² score after outlier removal (NaNs present).")
 
-# --- Summary statistics (prediction column with outliers removed) ---
-st.markdown("### Prediction Summary Statistics (Outliers Removed)")
-if not df_prices_cleaned.empty:
+    # --- Summary statistics (prediction column with outliers removed) ---
+    st.markdown("### Prediction Summary Statistics (Outliers Removed)")
     st.write(df_prices_cleaned['Predictions'].describe())
 else:
-    st.warning("No summary statistics available after outlier removal.")
+    st.warning("No data to plot after outlier removal.")
+    st.warning("Cannot calculate R² score or summary statistics for cleaned data.")
 
 # --- Prepare DataFrame for Original Data (for consistent plotting) ---
 dates_original = your_df['date']
@@ -129,22 +130,20 @@ if not df_prices_original.empty:
     ax_prices.set_title('Predictions vs Actual (Original)')
     ax_prices.legend()
     st.pyplot(fig_prices)
-else:
-    st.warning("No data to plot for original data.")
 
-# --- R² Score (Original) ---
-if not df_prices_original.empty and df_prices_original['Actual'].notna().any() and df_prices_original['Predictions'].notna().any():
-    r2_val = r2_score(
-        df_prices_original['Actual'].values.reshape(-1, 1),
-        df_prices_original['Predictions'].values.reshape(-1, 1)
-    )
-    st.markdown(f"### R² Score (Original): {r2_val:.4f}")
-else:
-    st.warning("Cannot calculate original R² score (likely no data).")
+    # --- R² Score (Original) ---
+    if df_prices_original['Actual'].notna().any() and df_prices_original['Predictions'].notna().any():
+        r2_val = r2_score(
+            df_prices_original['Actual'].values.reshape(-1, 1),
+            df_prices_original['Predictions'].values.reshape(-1, 1)
+        )
+        st.markdown(f"### R² Score (Original): {r2_val:.4f}")
+    else:
+        st.warning("Cannot calculate original R² score (NaNs present).")
 
-# --- Summary statistics (original prediction column) ---
-st.markdown("### Prediction Summary Statistics (Original)")
-if not df_prices_original.empty:
+    # --- Summary statistics (original prediction column) ---
+    st.markdown("### Prediction Summary Statistics (Original)")
     st.write(df_prices_original['Predictions'].describe())
 else:
-    st.warning("No summary statistics available for original data.")
+    st.warning("No data to plot for original data.")
+    st.warning("Cannot calculate original R² score or summary statistics.")
