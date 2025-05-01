@@ -16,7 +16,9 @@ your_df['date'] = pd.to_datetime(your_df['date'])
 your_df = your_df.sort_values("date")
 
 # --- Available Prediction Columns ---
-available_columns = ['pred_mlp_32', 'pred_mlp_64_32', 'pred_mlp_128_64_32', 'pred_hgbr', 'pred_Lasso', 'pred_Ridge']
+available_columns = [
+    'pred_mlp_64_32','pred_mlp_128_64_32','pred_mlp_256_128_64_32','pred_hgbr','pred_Lasso', 'pred_Ridge'
+]
 
 # --- Group by date using median ---
 your_df = your_df.groupby('date')[['ret'] + available_columns].median().reset_index()
