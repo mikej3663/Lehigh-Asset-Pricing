@@ -100,6 +100,16 @@ if selected_model_matrix != 'None':
     st.markdown("### Prediction Summary Statistics")
     st.write(df_clean['Predictions'].describe())
 
+    # Residual Histogram
+    st.markdown("### Prediction Error Histogram")
+    df_clean['Residual'] = df_clean['Actual'] - df_clean['Predictions']
+    fig_hist, ax_hist = plt.subplots()
+    sns.histplot(df_clean['Residual'], bins=30, kde=True, ax=ax_hist)
+    ax_hist.set_title("Histogram of Prediction Errors (Residuals)")
+    ax_hist.set_xlabel("Residual")
+    ax_hist.set_ylabel("Frequency")
+    st.pyplot(fig_hist)
+
 # Handle confusion‐matrix dropdown
 if selected_conf_matrix != 'None':
     bigresults = pd.read_csv('prediction_output3.csv')
