@@ -42,8 +42,8 @@ df_prices = pd.DataFrame({
 })
 
 # --- Calculate Cumulative Returns ---
-df_prices['Actual_Cumulative'] = (1 + df_prices['Actual']).cumprod() - 1
-df_prices['Predictions_Cumulative'] = (1 + df_prices['Predictions']).cumprod() - 1
+df_prices['Actual_Cumulative'] = ((1 + df_prices['Actual']/100).cumprod() - 1)*100
+df_prices['Predictions_Cumulative'] = ((1 + df_prices['Predictions']/100).cumprod() - 1)*100
 
 # --- Plot: Cumulative Actual vs Cumulative Predictions ---
 st.subheader("Cumulative Predictions vs Actual")
