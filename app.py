@@ -54,7 +54,12 @@ if 'date' not in your_df.columns or 'ret' not in your_df.columns:
 # --- Prepare DataFrame ---
 dates = your_df['date']
 actual_returns = your_df['ret'].clip(lower=-15, upper=15)
-predictions = your_df[selected_model_matrix].clip(lower=-15, upper=15) if selected_model_matrix != 'None' else None
+
+# If a model is selected, get the predictions, otherwise set them to None
+if selected_model_matrix != 'None':
+    predictions = your_df[selected_model_matrix].clip(lower=-15, upper=15)
+else:
+    predictions = None
 
 df_prices = pd.DataFrame({
     "Date": dates,
@@ -78,12 +83,16 @@ if selected_model_matrix != 'None':
 # Drop NaNs from columns to avoid mismatch
 df_prices = df_prices.dropna(subset=['Actual', 'Predictions'])
 
-r2_val = r2_score(
-    df_prices['Actual'],
-    df_prices['Predictions']
-)
+# Check if the Predictions column has data
+if df_prices['Predictions'].isnull().all():
+    st.error("No predictions available. Please select a valid model.")
+else:
+    r2_val = r2_score(
+        df_prices['Actual'],
+        df_prices['Predictions']
+    )
 
-st.markdown(f"### R² Score: {r2_val:.4f}")
+    st.markdown(f"### R² Score: {r2_val:.4f}")
 
 # --- Summary statistics (original prediction column) ---
 st.markdown("### Prediction Summary Statistics")
