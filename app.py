@@ -21,9 +21,9 @@ available_columns = [
 
 # Mapping for human-readable names (for dropdown display only)
 name_mapping = {
-    'pred_mlp_64_32': 'Neural Network (1 Fold)',
-    'pred_mlp_128_64_32': 'Neural Network (2 Folds)',
-    'pred_mlp_256_128_64_32': 'Neural Network (3 Folds)',
+    'pred_mlp_64_32': 'Neural Network (2 Fold)',
+    'pred_mlp_128_64_32': 'Neural Network (3 Folds)',
+    'pred_mlp_256_128_64_32': 'Neural Network (4 Folds)',
     'pred_hgbr': 'HistGradientBoostingRegressor',
     'pred_Lasso': 'Lasso',
     'pred_Ridge': 'Ridge'
