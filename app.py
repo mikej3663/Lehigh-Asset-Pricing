@@ -85,7 +85,7 @@ if selected_model_matrix != 'None':
 
 # Handle confusion‐matrix dropdown
 if selected_conf_matrix != 'None':
-    bigresults = pd.read_csv('preidction_output3.csv')
+    bigresults = pd.read_csv('prediction_output3.csv')
     model_dict = {
         'NN1':'pred_mlp_64_32','NN2':'pred_mlp_128_64_32','NN3':'pred_mlp_256_128_64_32',
         'HGBR':'pred_hgbr','Lasso':'pred_Lasso','Ridge':'pred_Ridge'
