@@ -19,7 +19,7 @@ available_columns = [
     'pred_mlp_64_32','pred_mlp_128_64_32','pred_mlp_256_128_64_32','pred_hgbr','pred_Lasso', 'pred_Ridge'
 ]
 
-# Mapping for human-readable names
+# Mapping for human-readable names (for dropdown display only)
 name_mapping = {
     'pred_mlp_64_32': 'Neural Network (1 Fold)',
     'pred_mlp_128_64_32': 'Neural Network (2 Folds)',
@@ -29,20 +29,18 @@ name_mapping = {
     'pred_Ridge': 'Ridge'
 }
 
-# Reverse the mapping to map selected model back to original column names
-reverse_mapping = {v: k for k, v in name_mapping.items()}
-
-# Replace the column names using the mapping
-new_available_columns = list(name_mapping.values())
-
-# --- Sidebar Selectors ---
-selected_model = st.sidebar.selectbox("Model Type", new_available_columns)
-
-# Map selected model back to original column name for DataFrame access
-selected_model_column = reverse_mapping[selected_model]
-
 # --- Group by date using median ---
 your_df = your_df.groupby('date')[['ret'] + available_columns].median().reset_index()
+
+# --- Sidebar Selectors ---
+# Only show human-readable names in the dropdown
+new_available_columns = [name_mapping[col] for col in available_columns]
+
+selected_model_display = st.sidebar.selectbox("Model Type", new_available_columns)
+
+# Reverse the mapping to access the original column name when selected
+reverse_mapping = {v: k for k, v in name_mapping.items()}
+selected_model_column = reverse_mapping[selected_model_display]
 
 # --- Check for required columns ---
 if 'date' not in your_df.columns or 'ret' not in your_df.columns:
