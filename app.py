@@ -191,7 +191,7 @@ if selected_conf_matrix != 'None':
             st.pyplot(fig_hist)
 
 try:
-    precision_df = pd.read_csv("Images/precisionrecallscore.csv")
+    precision_df = pd.read_csv("CSV Files/precisionrecallscore.csv")
     st.markdown("### TNR and FNR Summary Table")
     st.dataframe(precision_df)
 except FileNotFoundError:
