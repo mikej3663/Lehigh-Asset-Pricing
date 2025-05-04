@@ -8,7 +8,7 @@ from sklearn.metrics import recall_score, precision_score
 # --- Streamlit File Upload ---
 st.title("Neural Network Dashboard - Asset Pricing")
 
-file_path = 'prediction_output3.csv'
+file_path = 'CSV Files/prediction_output3.csv'
 your_df = pd.read_csv(file_path)
 
 # --- Convert 'date' column to datetime and sort ---
@@ -45,7 +45,7 @@ if selected_model_matrix == 'None' and selected_conf_matrix == 'None':
     st.markdown("**By:** Joseph Carruth, Jay Geneve, Michael Jamesley, and Evan Trock")
 
 
-    st.image("Market.png", use_container_width=True)
+    st.image("Images/Market.png", use_container_width=True)
     
     st.markdown("""
     
@@ -105,7 +105,7 @@ if selected_model_matrix != 'None':
 
 # Handle confusion‐matrix dropdown
 if selected_conf_matrix != 'None':
-    bigresults = pd.read_csv('prediction_output3.csv')
+    bigresults = pd.read_csv('CSV Files/prediction_output3.csv')
     # ... (your renaming/reset_index steps) ...
 
     model_dict = {
@@ -154,7 +154,7 @@ if selected_conf_matrix != 'None':
                     }
 
             df = pd.DataFrame.from_dict(tnr_fnr_results, orient='index').reset_index().rename(columns={'index': 'Model'})
-            df.to_csv("precisionrecallscore.csv", index=False)
+            df.to_csv("CSV Files/precisionrecallscore.csv", index=False)
 
         calculate_tnr_fnr()
 
@@ -191,7 +191,7 @@ if selected_conf_matrix != 'None':
             st.pyplot(fig_hist)
 
 try:
-    precision_df = pd.read_csv("precisionrecallscore.csv")
+    precision_df = pd.read_csv("Images/precisionrecallscore.csv")
     st.markdown("### TNR and FNR Summary Table")
     st.dataframe(precision_df)
 except FileNotFoundError:
