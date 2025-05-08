@@ -1,0 +1,7 @@
+tqdm 
+numpy
+pandas_datareader
+scikit-learn
+matplotlib
+seaborn
+pandas-datareader
